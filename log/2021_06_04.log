@@ -1,0 +1,18 @@
+2021-06-04 15:53:13.241878 [info] : ========== Server init ==========
+2021-06-04 15:53:13.241951 [info] : Port:9006, OpenLinger: false
+2021-06-04 15:53:13.241968 [info] : Listen Mode: ET, OpenConn Mode: ET
+2021-06-04 15:53:13.241975 [info] : LogSys level: 1
+2021-06-04 15:53:13.241982 [info] : srcDir: /home/zzc/projects/SimpleWebServer/resources/
+2021-06-04 15:53:13.242266 [info] : SqlConnPool num: 12, ThreadPool num: 6
+2021-06-04 15:53:13.242297 [info] : ========= Server start =========
+2021-06-04 15:53:21.443155 [info] : Client[18](192.168.213.1:56083) in, userCount:1
+2021-06-04 15:53:21.443247 [info] : Client[18] in!
+2021-06-04 15:53:21.443261 [info] : Client[19](192.168.213.1:29467) in, userCount:2
+2021-06-04 15:53:21.443287 [info] : Client[19] in!
+2021-06-04 15:53:21.548327 [info] : Client[21](192.168.213.1:2587) in, userCount:3
+2021-06-04 15:53:21.548471 [info] : Client[21] in!
+2021-06-04 15:53:21.548511 [info] : Client[20](192.168.213.1:7972) in, userCount:4
+2021-06-04 15:53:21.548520 [info] : Client[20] in!
+2021-06-04 15:53:21.548531 [info] : Client[22](192.168.213.1:63002) in, userCount:5
+2021-06-04 15:53:21.548536 [info] : Client[22] in!
+2021-06-04 15:53:21.916408 [info] : Client[23](192.168.213.1:16139) in, userCount:6
