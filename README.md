@@ -16,7 +16,7 @@
 ```
 .
 ├── bin
-│   └── simpleserver
+│   └── simpleserver 可执行文件
 ├── build
 │   └── Makefile
 ├── code             源代码
