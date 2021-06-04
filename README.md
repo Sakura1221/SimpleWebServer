@@ -48,13 +48,18 @@ CREATE TABLE user(
 )ENGINE=InnoDB;
 //添加数据
 INSERT INTO user(username, passwd) VALUES('your name', 'your password');
+
+//webdb是数据库名，user是表名，需要在main函数中传入
 ```
 然后编译运行
 ```
 make
 ./bin/simpleserver
 ```
-浏览器访问：127.0.0.1:9006
+浏览器访问
+```
+127.0.0.1:9006 #9006是在main函数中传入的服务器监听端口
+```
 ## TODO
 - config配置
 
