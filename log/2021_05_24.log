@@ -1,5 +1,0 @@
-2021-05-24 23:51:52.038797 [info] : ========== Server init ==========
-2021-05-24 23:51:52.038813 [info] : Port:1316, OpenLinger: false
-2021-05-24 23:51:52.038862 [info] : Listen Mode: ET, OpenConn Mode: ET
-2021-05-24 23:51:52.038865 [info] : LogSys level: 1
-2021-05-24 23:51:52.038913 [info] : srcDir: /home/lig/Desktop/SimpleWebServer/resources/
