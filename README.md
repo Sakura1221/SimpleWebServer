@@ -1,5 +1,5 @@
 # SimpleWebServer
-基于Cpp11实现的高性能Web服务器
+基于Cpp11实现的高性能Web服务器，代码简洁，注释详尽，适合新手入门
 ## 特性
 - 利用Epoll与线程池实现Reactor高并发模型
 - 利用状态机与正则实现HTTP请求报文解析，可同时处理GET与POST请求
