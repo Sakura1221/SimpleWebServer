@@ -7,7 +7,7 @@ const char CRLF[] = "\r\n";
 const unordered_set<string> HttpRequest::DEFAULT_HTML
 {
     "/index", "/register", "/login",
-    "/welcome", "/video", "/picture"
+    "/welcome", "/video", "/picture",
 };
 
 const unordered_map<string, int> HttpRequest::DEFAULT_HTML_TAG
@@ -25,23 +25,40 @@ void HttpRequest::init()
     header.clear();
     post.clear();
 }
+
 HTTP_CODE HttpRequest::parse(Buffer& buffer)
 {
+    // string content(buffer.peek(), buffer.beginWriteConst());
+    // cout << content;
     while (buffer.readableBytes())
     {
-        //search，找到返回第一个字符串下标，找不到返回最后一下标
-        const char* lineEnd = search(buffer.peek(), buffer.beginWriteConst(), CRLF, CRLF + 2);
-        //如果没找到CRLF，也不是BODY，那么一定不完整
-        if (lineEnd == buffer.beginWrite() && state != BODY) return NO_REQUEST;
-        string line(buffer.peek(), lineEnd);
-        if (state == BODY && line.size() < contentLen) return NO_REQUEST;
+        const char* lineEnd;
+        string line;
+        // 除了消息体外，逐行解析
+        if (state != BODY)
+        {
+            //search，找到返回第一个字符串下标，找不到返回最后一下标
+            lineEnd = search(buffer.peek(), buffer.beginWriteConst(), CRLF, CRLF + 2);
+            //如果没找到CRLF，也不是BODY，那么一定不完整
+            if (lineEnd == buffer.beginWrite()) return NO_REQUEST;
+            line = string(buffer.peek(), lineEnd);
+            buffer.retrieveUntil(lineEnd + 2); // 除消息体外，都有换行符
+        }
+        else
+        {
+            // 消息体读取全部内容，同时清空缓存
+            body += buffer.retrieveAllToStr();
+            if (body.size() < contentLen)
+            {
+                return NO_REQUEST;
+            }
+        }
 
         switch(state)
         {
         case REQUEST_LINE:
         {
             HTTP_CODE ret = parseRequestLine(line);
-            buffer.retrieveUntil(lineEnd + 2);
             if (ret == BAD_REQUEST)
             {
                 return BAD_REQUEST;
@@ -51,8 +68,7 @@ HTTP_CODE HttpRequest::parse(Buffer& buffer)
         }
         case HEADERS:
         {
-            HTTP_CODE ret = parseHeader(line);
-            buffer.retrieveUntil(lineEnd + 2);
+            HTTP_CODE ret = parseHeader(line);            
             //内部根据content-length字段判断请求完整，提前结束
             if (ret == GET_REQUEST)
             {
@@ -62,9 +78,7 @@ HTTP_CODE HttpRequest::parse(Buffer& buffer)
         }
         case BODY:
         {
-            //响应体无CRLF，不需要+2
-            HTTP_CODE ret = parseBody(line);
-            buffer.retrieveUntil(lineEnd);
+            HTTP_CODE ret = parseBody();
             if (ret == GET_REQUEST)
             {
                 return GET_REQUEST;
@@ -130,31 +144,12 @@ HTTP_CODE HttpRequest::parseHeader(const string& line)
     }
     else
     {
-        //state = FINISH;
         return GET_REQUEST;
     }
 }
 
-/* 解析请求体，内部处理post请求 */
-HTTP_CODE HttpRequest::parseBody(const string& line)
-{
-    body = line;
-    parsePost();
-    //state = FINISH;
-    LOG_DEBUG("Body:%s len:%d", line.c_str(), line.size());
-    return GET_REQUEST;
-}
-
-/* 十六进制转十进制 */
-int HttpRequest::convertHex(char ch)
-{
-    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
-    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
-    return ch;
-}
-
-/* 处理post请求 */
-void HttpRequest::parsePost()
+/* 解析请求消息体，根据消息类型解析内容 */
+HTTP_CODE HttpRequest::parseBody()
 {
     //key-value
     if (method == "POST" && header["Content-Type"] == "application/x-www-form-urlencoded")
@@ -177,9 +172,19 @@ void HttpRequest::parsePost()
             }
         }
     }
+    LOG_DEBUG("Body:%s len:%d", body.c_str(), body.size());
+    return GET_REQUEST;
 }
 
-/* 从post请求中解析数据 */
+/* 十六进制转十进制 */
+int HttpRequest::convertHex(char ch)
+{
+    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+    return ch;
+}
+
+/* 解析urlEncoded类型数据 */
 void HttpRequest::parseFromUrlEncoded()
 {
     if (body.size() == 0) return;

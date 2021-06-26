@@ -53,10 +53,9 @@ public:
 private:
     HTTP_CODE parseRequestLine(const string& line);
     HTTP_CODE parseHeader(const string& line);
-    HTTP_CODE parseBody(const string& line);
+    HTTP_CODE parseBody();
 
     void parsePath();
-    void parsePost();
     void parseFromUrlEncoded();
 
     static bool userVerify(const string& name, const string& pwd, bool isLogin);
