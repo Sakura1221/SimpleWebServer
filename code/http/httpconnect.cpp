@@ -13,7 +13,7 @@ HttpConnect::HttpConnect()
     isClose = true;
 }
 
-/* 连接对象初始化：套接字，端口，缓存 */
+/* 连接初始化：套接字，端口，缓存，请求解析状态机 */
 void HttpConnect::init(int fd, const sockaddr_in& addr)
 {
     assert(fd > 0);
@@ -24,6 +24,7 @@ void HttpConnect::init(int fd, const sockaddr_in& addr)
     readBuffer.retrieveAll();
     isClose = false;
     LOG_INFO("Client[%d](%s:%d) in, userCount:%d", fd, getIP(), getPort(), (int)userCnt);
+    request.init(); // 在连接时初始化，而不是请求到来时，避免一次请求分多次发送，状态机状态重置
 }
 
 /* 关闭连接 */
@@ -102,7 +103,7 @@ ssize_t HttpConnect::write(int* saveErrno)
 //不完整返回false，完整在写缓存内写入响应头，并获取响应体内容（文件）
 bool HttpConnect::process()
 {
-    request.init();
+    //request.init();
     if (readBuffer.readableBytes() <= 0) return false;
 
     HTTP_CODE ret = request.parse(readBuffer);
@@ -116,6 +117,7 @@ bool HttpConnect::process()
     {
         LOG_DEBUG("%s", request.getPathConst().c_str());
         response.init(srcDir, request.getPath(), request.isKeepAlive(), 200);
+        request.init(); // 如果是长连接，等待下一次请求，需要初始化
     }
     //请求行错误, bad request
     else if (ret == HTTP_CODE::BAD_REQUEST)
