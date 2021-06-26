@@ -62,7 +62,7 @@ const unordered_set<string> HttpRequest::DEFAULT_HTML
 {
     "/index", "/register", "/login",
     "/welcome", "/video", "/picture",
-    "/upload"
+    "/upload", "/download"
 };
 
 const unordered_map<string, int> HttpRequest::DEFAULT_HTML_TAG
