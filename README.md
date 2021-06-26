@@ -8,10 +8,13 @@
 - 利用单例模式实现了一个简单的线程池，减少了线程创建与销毁的开销
 - 利用单例模式实现连接MySQL的数据库连接池，减少数据库连接建立与关闭的开销，实现了用户注册登录功能
 - 利用单例模式与阻塞队列实现异步日志系统，记录服务器运行状态
+- 能够处理前端发送的multi/form-data类型的post请求，实现了文件上传功能
+- 通过jsoncpp生成json数据，向前端发送文件列表，实现了文件列表展示功能
 ## 环境要求
 - Linux
 - C++11
 - MySQL 5.7.31
+- jsoncpp 
 ## 目录树
 ```
 .
@@ -31,12 +34,23 @@
 │   ├── threadpool   线程池
 │   └── timer        小根堆管理的定时器
 ├── log              日志目录
+├── files            文件上传目录
 ├── Makefile
 ├── README.md
 └── resources        静态资源
 ```
 ## 项目启动
-需要先配置好数据库
+编译安装jsoncpp库
+```
+cd jsoncpp
+cmake CMakeLists.txt
+// 会生成一个Makefile文件，make编译
+make
+// 执行安装（将生成的库拷贝到系统目录下）
+sudo make install
+```
+
+配置数据库
 ```
 //创建数据库
 create database webdb;
