@@ -43,6 +43,8 @@
 将项目克隆到本地
 ```
 git clone -b upload https://github.com/Sakura1221/SimpleWebServer.git
+// 还要添加jsoncpp子模块，在项目根目录下执行
+git submodule update --init --recursive
 ```
 编译安装jsoncpp库
 ```
