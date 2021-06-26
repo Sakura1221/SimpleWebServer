@@ -2,6 +2,8 @@
 
 using namespace std;
 
+const char CRLF[] = "\r\n";
+
 const unordered_set<string> HttpRequest::DEFAULT_HTML
 {
     "/index", "/register", "/login",
@@ -25,7 +27,6 @@ void HttpRequest::init()
 }
 HTTP_CODE HttpRequest::parse(Buffer& buffer)
 {
-    const char CRLF[] = "\r\n";
     while (buffer.readableBytes())
     {
         //search，找到返回第一个字符串下标，找不到返回最后一下标
