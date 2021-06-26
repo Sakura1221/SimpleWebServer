@@ -40,6 +40,10 @@
 └── resources        静态资源
 ```
 ## 项目启动
+将项目克隆到本地
+```
+git clone -b upload https://github.com/Sakura1221/SimpleWebServer.git
+```
 编译安装jsoncpp库
 ```
 cd jsoncpp
