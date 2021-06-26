@@ -53,11 +53,11 @@ public:
 private:
     HTTP_CODE parseRequestLine(const string& line);
     HTTP_CODE parseHeader(const string& line);
-    HTTP_CODE parseBody(const string& line);
+    HTTP_CODE parseBody();
 
     void parsePath();
-    void parsePost();
     void parseFromUrlEncoded();
+    void parseFormData();
 
     static bool userVerify(const string& name, const string& pwd, bool isLogin);
 
@@ -67,6 +67,7 @@ private:
     size_t contentLen;
     unordered_map<string, string> header;
     unordered_map<string, string> post;
+    unordered_map<string, string> fileInfo;
 
     static const unordered_set<string> DEFAULT_HTML;
     static const unordered_map<string, int> DEFAULT_HTML_TAG;

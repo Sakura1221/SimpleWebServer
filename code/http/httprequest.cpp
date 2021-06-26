@@ -1,11 +1,68 @@
 #include "httprequest.h"
+#include <fstream>
+#include <stdio.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <json/json.h>
 
 using namespace std;
+
+const char CRLF[] = "\r\n";
+
+vector<string> getFiles(string dir)
+{
+    vector<string> files;
+    DIR *pDir = NULL;
+	struct dirent * pEnt = NULL;
+
+	pDir = opendir(dir.c_str());
+	if (NULL == pDir)
+	{
+		perror("opendir");
+		return files;
+	}	
+    
+	while (1)
+	{
+		pEnt = readdir(pDir);
+		if(pEnt != NULL)
+		{
+            if(strcmp(".",pEnt->d_name)==0 || strcmp("..",pEnt->d_name)==0)
+            {
+                continue;
+            }
+			files.push_back(pEnt->d_name);
+		}
+		else
+		{
+			break;
+		}
+	};
+	return files;
+}
+
+void write_json(string file, Json::Value root)
+{
+    std::ostringstream os;
+    Json::StreamWriterBuilder writerBuilder;
+    std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
+
+    jsonWriter->write(root, &os);
+
+    ofstream ofs;
+    ofs.open(file);
+    assert(ofs.is_open());
+    ofs << os.str();
+    ofs.close();
+
+    return;
+}
 
 const unordered_set<string> HttpRequest::DEFAULT_HTML
 {
     "/index", "/register", "/login",
-    "/welcome", "/video", "/picture"
+    "/welcome", "/video", "/picture",
+    "/upload"
 };
 
 const unordered_map<string, int> HttpRequest::DEFAULT_HTML_TAG
@@ -23,24 +80,40 @@ void HttpRequest::init()
     header.clear();
     post.clear();
 }
+
 HTTP_CODE HttpRequest::parse(Buffer& buffer)
 {
-    const char CRLF[] = "\r\n";
+    // string content(buffer.peek(), buffer.beginWriteConst());
+    // cout << content;
     while (buffer.readableBytes())
     {
-        //search，找到返回第一个字符串下标，找不到返回最后一下标
-        const char* lineEnd = search(buffer.peek(), buffer.beginWriteConst(), CRLF, CRLF + 2);
-        //如果没找到CRLF，也不是BODY，那么一定不完整
-        if (lineEnd == buffer.beginWrite() && state != BODY) return NO_REQUEST;
-        string line(buffer.peek(), lineEnd);
-        if (state == BODY && line.size() < contentLen) return NO_REQUEST;
+        const char* lineEnd;
+        string line;
+        // 除了消息体外，逐行解析
+        if (state != BODY)
+        {
+            //search，找到返回第一个字符串下标，找不到返回最后一下标
+            lineEnd = search(buffer.peek(), buffer.beginWriteConst(), CRLF, CRLF + 2);
+            //如果没找到CRLF，也不是BODY，那么一定不完整
+            if (lineEnd == buffer.beginWrite()) return NO_REQUEST;
+            line = string(buffer.peek(), lineEnd);
+            buffer.retrieveUntil(lineEnd + 2); // 除消息体外，都有换行符
+        }
+        else
+        {
+            // 消息体读取全部内容，同时清空缓存
+            body += buffer.retrieveAllToStr();
+            if (body.size() < contentLen)
+            {
+                return NO_REQUEST;
+            }
+        }
 
         switch(state)
         {
         case REQUEST_LINE:
         {
             HTTP_CODE ret = parseRequestLine(line);
-            buffer.retrieveUntil(lineEnd + 2);
             if (ret == BAD_REQUEST)
             {
                 return BAD_REQUEST;
@@ -50,8 +123,7 @@ HTTP_CODE HttpRequest::parse(Buffer& buffer)
         }
         case HEADERS:
         {
-            HTTP_CODE ret = parseHeader(line);
-            buffer.retrieveUntil(lineEnd + 2);
+            HTTP_CODE ret = parseHeader(line);            
             //内部根据content-length字段判断请求完整，提前结束
             if (ret == GET_REQUEST)
             {
@@ -61,9 +133,7 @@ HTTP_CODE HttpRequest::parse(Buffer& buffer)
         }
         case BODY:
         {
-            //响应体无CRLF，不需要+2
-            HTTP_CODE ret = parseBody(line);
-            buffer.retrieveUntil(lineEnd);
+            HTTP_CODE ret = parseBody();
             if (ret == GET_REQUEST)
             {
                 return GET_REQUEST;
@@ -87,6 +157,18 @@ void HttpRequest::parsePath()
     if (path == "/") path = "/index.html";
     else if (DEFAULT_HTML.count(path))
         path += ".html";
+    else if (path == "/list.json")
+    {
+        auto files = getFiles("./files");
+        Json::Value root;
+        Json::Value file;
+        for (int i = 0; i < (int)files.size(); i ++)
+        {
+            file["filename"] = files[i];
+            root.append(file);
+        }
+        write_json("./resources/list.json", root);
+    }
 }
 
 /* 解析请求行 */
@@ -129,31 +211,12 @@ HTTP_CODE HttpRequest::parseHeader(const string& line)
     }
     else
     {
-        //state = FINISH;
         return GET_REQUEST;
     }
 }
 
-/* 解析请求体，内部处理post请求 */
-HTTP_CODE HttpRequest::parseBody(const string& line)
-{
-    body = line;
-    parsePost();
-    //state = FINISH;
-    LOG_DEBUG("Body:%s len:%d", line.c_str(), line.size());
-    return GET_REQUEST;
-}
-
-/* 十六进制转十进制 */
-int HttpRequest::convertHex(char ch)
-{
-    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
-    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
-    return ch;
-}
-
-/* 处理post请求 */
-void HttpRequest::parsePost()
+/* 解析请求消息体，根据消息类型解析内容 */
+HTTP_CODE HttpRequest::parseBody()
 {
     //key-value
     if (method == "POST" && header["Content-Type"] == "application/x-www-form-urlencoded")
@@ -176,9 +239,29 @@ void HttpRequest::parsePost()
             }
         }
     }
+    else if (method == "POST" && header["Content-Type"].find("multipart/form-data") != string::npos)
+    {
+        parseFormData();
+        LOG_INFO("upload file!");
+        ofstream ofs;
+        ofs.open("./resources/response.txt", ios::ate);
+        ofs << "./files/" << fileInfo["filename"];
+        ofs.close();
+        path = "/response.txt";
+    }
+    LOG_DEBUG("Body:%s len:%d", body.c_str(), body.size());
+    return GET_REQUEST;
 }
 
-/* 从post请求中解析数据 */
+/* 十六进制转十进制 */
+int HttpRequest::convertHex(char ch)
+{
+    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+    return ch;
+}
+
+/* 解析urlEncoded类型数据 */
 void HttpRequest::parseFromUrlEncoded()
 {
     if (body.size() == 0) return;
@@ -223,6 +306,31 @@ void HttpRequest::parseFromUrlEncoded()
         value = body.substr(j, i - j);
         post[key] = value;
     }
+}
+
+void HttpRequest::parseFormData()
+{
+    if (body.size() == 0) return;
+
+    size_t st = 0, ed = 0;
+    ed = body.find(CRLF);
+    string boundary = body.substr(0, ed);
+
+    // 解析文件信息
+    st = body.find("filename=\"", ed) + strlen("filename=\"");
+    ed = body.find("\"", st);
+    fileInfo["filename"] = body.substr(st, ed - st);
+    
+    // 解析文件内容，文件内容以\r\n\r\n开始
+    st = body.find("\r\n\r\n", ed) + strlen("\r\n\r\n");
+    ed = body.find(boundary, st) - 2; // 文件结尾也有\r\n
+    string content = body.substr(st, ed - st);
+
+    ofstream ofs;
+    // 如果文件分多次发送，应该采用app，同时为避免重复上传，应该用md5做校验
+    ofs.open("./files/" + fileInfo["filename"], ios::ate);
+    ofs << content;
+    ofs.close();
 }
 
 bool HttpRequest::userVerify(const string &name, const string &pwd, bool isLogin) {

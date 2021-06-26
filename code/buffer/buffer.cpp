@@ -27,7 +27,7 @@ size_t Buffer::prependableBytes() const
     return readPos;
 }
 
-//写起点
+//读起点
 const char* Buffer::peek() const
 {
     return beginPtr() + readPos;
