@@ -59,7 +59,7 @@
 //创建数据库
 create database webdb;
 //创建user表
-USE yourdb;
+USE webdb;
 CREATE TABLE user(
     username char(50) NULL,
     passwd char(50) NULL
@@ -81,10 +81,11 @@ make
 ```
 
 ## 更新记录
-- 2021/6/25
+- 2021/6/23 修改HTTP请求解析bug
     - 解析请求的主从状态机，由一次请求初始化一次，修改为一次连接初始化一次（避免分块发送的数据解析错误）
     - HTTP消息体可能不只一行，根据Content-Length字段，读完整后再解析（为后续form-data类型的post消息传输做准备）
-    - 新增upload分支，暂时实现了文件上传，文件列表展示功能（TODO:文件下载功能）
+- 2021/6/25 新增upload分支
+    - 该分支用于测试文件上传与下载功能，暂时实现了文件上传，文件列表展示功能（TODO:文件下载功能）
 
 ## TODO
 - config配置
