@@ -12,17 +12,20 @@
 ## 演示
 图片和视频
 <p align="center">
-    <img src="./demo/picture.png" width = "320"><img src="./demo/video.png" width = "320">
+    <img src="./demo/picture.png" width = "600">
+    <img src="./demo/video.png" width = "600">
 </p>
 
 注册和登录
 <p align="center">
-    <img src="./demo/register.png" width = "320"><img src="./demo/login.png" width = "320">
+    <img src="./demo/register.png" width = "600">
+    <img src="./demo/login.png" width = "600">
 </p>
 
 上传和下载
 <p align="center">
-    <img src="./demo/upload.png" width = "320"><img src="./demo/download.png" width = "320">
+    <img src="./demo/upload.png" width = "600">
+    <img src="./demo/download.png" width = "600">
 </p>
 
 ## 环境要求
