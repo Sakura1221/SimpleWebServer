@@ -61,13 +61,13 @@ sudo make install
 //创建数据库
 create database webdb;
 //创建user表
-USE yourdb;
+USE webdb;
 CREATE TABLE user(
     username char(50) NULL,
     passwd char(50) NULL
 )ENGINE=InnoDB;
 //添加数据
-INSERT INTO user(username, passwd) VALUES('your name', 'your password');
+INSERT INTO user(username, passwd) VALUES('username', 'password');
 
 //webdb是数据库名，user是表名，需要在main函数中传入
 ```
