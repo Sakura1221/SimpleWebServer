@@ -8,10 +8,28 @@
 - 利用单例模式实现了一个简单的线程池，减少了线程创建与销毁的开销
 - 利用单例模式实现连接MySQL的数据库连接池，减少数据库连接建立与关闭的开销，实现了用户注册登录功能
 - 利用单例模式与阻塞队列实现异步日志系统，记录服务器运行状态
+
+## 演示
+图片和视频
+<p align="center">
+    <img src="./demo/picture.png" width = "320"><img src="./demo/video.png" width = "320">
+</p>
+
+注册和登录
+<p align="center">
+    <img src="./demo/register.png" width = "320"><img src="./demo/login.png" width = "320">
+</p>
+
+上传和下载
+<p align="center">
+    <img src="./demo/upload.png" width = "320"><img src="./demo/download.png" width = "320">
+</p>
+
 ## 环境要求
 - Linux
 - C++11
 - MySQL 5.7.31
+- g++ 
 ## 目录树
 ```
 .
