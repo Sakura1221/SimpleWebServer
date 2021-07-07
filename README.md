@@ -52,6 +52,7 @@
 │   ├── threadpool   线程池
 │   └── timer        小根堆管理的定时器
 ├── log              日志目录
+├── webbench-1.5     压力测试
 ├── Makefile
 ├── README.md
 └── resources        静态资源
@@ -82,6 +83,11 @@ make
 127.0.0.1:9006
 #9006是在main函数中传入的服务器监听端口
 ```
+## 压力测试
+```
+cd webbench-1.5 && make
+./webbench-1.5/webbench -c 10000 -t 10 http://127.0.0.1:9006/
+```
 
 ## 更新记录
 - 2021/6/23 修改HTTP请求解析bug
@@ -89,10 +95,11 @@ make
     - HTTP消息体可能不只一行，根据Content-Length字段，读完整后再解析（为后续form-data类型的post消息传输做准备）
 - 2021/6/25 新增upload分支
     - 该分支用于测试文件上传与下载功能，暂时实现了文件上传，文件列表展示功能（TODO:文件下载功能）
+- 2021/6/30 新增压力测试
+    - 在i5-8400的cpu，8G内存服务器上，可以实现10000+的QPS
 
 ## TODO
 - config配置
-- webbench压力测试
 
 ## 致谢
 Linux高性能服务器编程，游双著
