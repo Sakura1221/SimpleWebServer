@@ -14,9 +14,9 @@ up操作：比父结点小，与父结点交换
 调整定时器：更新定时后，再执行down和up（实际上只会执行一个）
 删除定时器：与最后一个元素交换，删除末尾元素，然后再down和up（删除任意位置结点，同样也只会执行一个）
 */
-void HeapTimer::swapNode(size_t i, size_t j)
+void HeapTimer::swapNode(int i, int j)
 {
-    size_t s = heap.size();
+    int s = heap.size();
     assert(i >= 0 && i < s);
     assert(j >= 0 && j < s);
     std::swap(heap[i], heap[j]);
@@ -24,12 +24,12 @@ void HeapTimer::swapNode(size_t i, size_t j)
     ref[heap[j].id] = j;
 }
 
-void HeapTimer::siftup(size_t i)
+void HeapTimer::siftup(int i)
 {
-    assert(i >= 0 && i < heap.size());
+    assert(i >= 0 && i < (int)heap.size());
 
-    size_t j = (i - 1) / 2;
-    while(j > 0 && heap[i] < heap[j]) 
+    int j = (i - 1) / 2;
+    while(j >= 0 && heap[i] < heap[j]) 
     {
         swapNode(i, j);
         i = j;
@@ -37,11 +37,11 @@ void HeapTimer::siftup(size_t i)
     }
 }
 
-void HeapTimer::siftdown(size_t i)
+void HeapTimer::siftdown(int i)
 {
-    size_t s = heap.size();
+    int s = heap.size();
     assert(i >= 0 && i < s);
-    size_t t = i * 2 + 1;
+    int t = i * 2 + 1;
 
     while (t < s)
     {
@@ -55,7 +55,7 @@ void HeapTimer::siftdown(size_t i)
 void HeapTimer::add(int id, int timeout, const TimeoutCallBack& cb)
 {
     assert(id >= 0);
-    size_t i;
+    int i;
     if(!ref.count(id))
     {
         i = heap.size();
@@ -73,10 +73,10 @@ void HeapTimer::add(int id, int timeout, const TimeoutCallBack& cb)
     }
 }
 
-void HeapTimer::del(size_t i)
+void HeapTimer::del(int i)
 {
-    assert(!heap.empty() && i >= 0 && i < heap.size());
-    size_t n = heap.size() - 1;
+    assert(!heap.empty() && i >= 0 && i < (int)heap.size());
+    int n = heap.size() - 1;
     swapNode(i, n);
 
     ref.erase(heap.back().id);
@@ -130,7 +130,7 @@ int HeapTimer::getNextTick()
 {
     //处理堆顶计时器，若超时执行回调再删除
     tick();
-    size_t res = -1;
+    int res = -1;
     if(!heap.empty())
     {
         //计算现在堆顶的超时时间，到期时先唤醒一次epoll，判断是否有新事件（即便已经超时）

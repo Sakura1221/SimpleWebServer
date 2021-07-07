@@ -57,19 +57,19 @@ public:
     int getNextTick();
 
 private:
-    void del(size_t i);
+    void del(int i);
     
-    void siftup(size_t i);
+    void siftup(int i);
 
-    void siftdown(size_t i);
+    void siftdown(int i);
 
-    void swapNode(size_t i, size_t j);
+    void swapNode(int i, int j);
 
     //数组模拟堆
     std::vector<TimerNode> heap;
 
     //记录每个定时器的下标
-    std::unordered_map<int, size_t> ref;
+    std::unordered_map<int, int> ref;
 };
 
 #endif
