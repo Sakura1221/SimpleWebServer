@@ -58,7 +58,7 @@ ssize_t HttpConnect::read(int* saveErrno)
     return len;
 }
 
-/* 写方法,响应头和响应体分开传输 */
+/* 写方法,响应头和响应体是分开的，要用iov实现写操作 */
 ssize_t HttpConnect::write(int* saveErrno)
 {
     //最后一次写入的长度
