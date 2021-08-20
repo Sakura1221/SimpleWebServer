@@ -60,6 +60,14 @@
 └── resources        静态资源
 ```
 ## 项目启动
+下载master分支（无文件上传下载功能）：
+```
+git clone https://github.com/Sakura1221/SimpleWebServer.git
+```
+下载upload分支（有文件上传下载功能）：
+```
+git clone -b upload https://github.com/Sakura1221/SimpleWebServer.git
+```
 需要先配置好数据库
 ```
 //创建数据库
