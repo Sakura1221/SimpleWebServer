@@ -64,10 +64,8 @@
 ```
 git clone https://github.com/Sakura1221/SimpleWebServer.git
 ```
-下载upload分支（有文件上传下载功能）：
-```
-git clone -b upload https://github.com/Sakura1221/SimpleWebServer.git
-```
+> 文件上传下载功能请切换upload分支，git clone添加-b upload选项
+
 需要先配置好数据库
 ```
 //创建数据库
